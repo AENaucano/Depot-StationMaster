@@ -32,34 +32,7 @@
 */
 
 
-string version = "1.09";
-
-var list = new List<YourClass>();
-
-foreach(var item in ) {
-    var cls = new YourClass();
-    // Assign variables here
-    // cls.Test = item.Test;
-
-    list.Add(cls);
-}
-
-
-// definitions
-Ores FeOres = new Ores();
-Ores NiOres = new Ores();
-Ores SiOres = new Ores();
-Ores CoOres = new Ores();
-Ores MgOres = new Ores();
-Ores UOres = new Ores();
-Ores AgOres = new Ores();
-Ores AuOres = new Ores();
-Ores PtOres = new Ores();
-// specials    
-Ores ScrOres = new Ores();
-Ores GrOres = new Ores();
-// very special
-Ores IceOres = new Ores();
+string version = "2.02";
 
 // this only runs @the start ie. compile
 public Program() {
@@ -81,6 +54,9 @@ public Program() {
     CheckCustomData();
 
     // I leave this here for the moment
+
+
+
     // static List<String> SubOreTypeList = new List<string> {  "Iron", "Nickel","Silicon", "Cobalt", "Magnesium", 
     //                                                          "Uranium", "Silver", "Gold", "Platinum", "Scrap", "Stone" };
     // static List<String> SubIngotTypeList = new List<string> {  "Iron", "Nickel","Silicon", "Cobalt", "Magnesium", 
@@ -89,34 +65,32 @@ public Program() {
     // List<float> OreIngotRatio = new List<float> { 0.7f, 0.4f, 0.7f, 0.3f, 0.07f,
     //                                               0.07f, 0.1f, 0.01f, 0.005f, 0.8f, 0.9f };
 
-    /*
+
     var Orelisting = new List<Ores>();
 
     for(int i=0; i<SubOreTypeList.Count; i++){
-        var Orecls = new Ores();
-        Orecls.OreDefinition(SubOreTypeList[i],....)
-
-        Orelisting.Add(Orecls);
+        var OreCls = new Ores();
+        Orelisting.Add(OreCls);
     }
-    */
-
 
     // definitions
-    FeOres.OreDefinition( "Iron", "Fe", 0.7f, "Iron");
-    NiOres.OreDefinition( "Nickle", "Ni", 0.4f, "Nickle");
-    SiOres.OreDefinition( "Silicon", "Si", 0.7f, "Silicon");
-    CoOres.OreDefinition( "Cobalt", "Co", 0.3f, "Cobalt");
-    MgOres.OreDefinition( "Magnesium", "Mg", 0.07f, "Magnesium");
-    UOres.OreDefinition( "Uranium", "U", 0.07f, "Uranium");
-    AgOres.OreDefinition( "Silver", "Ag", 0.1f, "Silver");
-    AuOres.OreDefinition( "Gold", "Au", 0.01f, "Gold");
-    PtOres.OreDefinition( "Platinum", "Pt", 0.005f, "Platinum");
+    OreListing[0].OreDefinition( "Iron", 0.7f, "Iron");
+    OreListing[1].OreDefinition( "Nickle", 0.4f, "Nickle");
+    OreListing[2].OreDefinition( "Silicon", 0.7f, "Silicon");
+    OreListing[3].OreDefinition( "Cobalt", 0.3f, "Cobalt");
+    OreListing[4].OreDefinition( "Magnesium", 0.07f, "Magnesium");
+    OreListing[5].OreDefinition( "Uranium", 0.07f, "Uranium");
+    OreListing[6].OreDefinition( "Silver", 0.1f, "Silver");
+    OreListing[7].OreDefinition( "Gold", 0.01f, "Gold");
+    OreListing[8].OreDefinition( "Platinum", 0.005f, "Platinum");
     // specials    
-    ScrOres.OreDefinition( "Scrap", "Scr", 0.8f, "Iron");
-    GrOres.OreDefinition( "Stone", "Gr", 0.9f, "Gravel");
+    OreListing[9].OreDefinition( "Scrap", 0.8f, "Iron");
+    OreListing[10].OreDefinition( "Stone", 0.9f, "Gravel");
     // very special
-    IceOres.OreDefinition( "Ice", "H2O", 0.7f, "Hydrogen"); // not sure about the ratio
+    // IceOres.OreDefinition( "Ice", 0.7f, "Hydrogen"); // not sure about the ratio
+
 }
+
 
 public void Save() {
     Storage = string.Join(";",
@@ -153,14 +127,14 @@ string LastReceived = "";
 // Typical SE stuff
 public IMyProgrammableBlock PBMaster;
 
-    /* Lists no! no Chopins! */
-    // Basic lists
-    List<IMyTerminalBlock> AllBlocks = new List<IMyTerminalBlock>();
+/* Lists no! no Chopins! */
+// Basic lists
+List<IMyTerminalBlock> AllBlocks = new List<IMyTerminalBlock>();
 
-    // Needed Lists
-    static List<String> SubOreTypeList = new List<string> {  "Iron", "Nickel","Silicon", "Cobalt", "Magnesium", "Uranium", "Silver", "Gold", "Platinum", "Scrap", "Stone" };
-    static List<String> SubIngotTypeList = new List<string> {  "Iron", "Nickel","Silicon", "Cobalt", "Magnesium", "Uranium", "Silver", "Gold", "Platinum", "ScrapIron", "Gravel" };
-    // Alfa = Base ?
+// Needed Lists
+static List<String> SubOreTypeList = new List<string> {  "Iron", "Nickel","Silicon", "Cobalt", "Magnesium", "Uranium", "Silver", "Gold", "Platinum", "Scrap", "Stone" };
+    // static List<String> SubIngotTypeList = new List<string> {  "Iron", "Nickel","Silicon", "Cobalt", "Magnesium", "Uranium", "Silver", "Gold", "Platinum", "ScrapIron", "Gravel" };
+// NATO codes from SAM -  Alfa = Base ?
 static List<string> NATO_CODES = new List<string>(new string[] { "Alfa", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliett", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", "Zulu" }); 
     
     List<string> NeededOres = new List<string>(); // this is what we really need
@@ -316,6 +290,15 @@ public void Main(string argument, UpdateType updateSource) {
             }
         }
         
+        // TODO if the program restarts all DefStations are gone !
+        //      we have to figure out how to captate the Codes from existing Stations !
+        foreach(string code in NATO_CODES) {
+            if(parts[0].Contains(code)) {
+                if(!DefStations.Contains(code) DefStations.Add(Code);
+            }
+        }
+
+
         // Stations=Mines will send their NatoCode -> Check in DefStations
         if(DefStations.Count > 0){
 
@@ -1103,44 +1086,33 @@ public void OreFetching() {
     LCD   
 ******************/   
 
-    public void ShowText(string Tekst, string LCDName = "LCD ComponentControl",  bool RepeatEcho = false)     
-    {     
-        List<IMyTerminalBlock> MyLCDs = new List<IMyTerminalBlock>();     
-        GridTerminalSystem.SearchBlocksOfName(LCDName, MyLCDs);   
+public void ShowText(string Tekst, string LCDName = "LCD ComponentControl",  bool RepeatEcho = false) {     
+    List<IMyTerminalBlock> MyLCDs = new List<IMyTerminalBlock>();
+    GridTerminalSystem.SearchBlocksOfName(LCDName, MyLCDs); 
     
-        if ((MyLCDs == null) || (MyLCDs.Count == 0))     
-        {     
-            Echo( "|-0 No LCD-panel found with " + LCDName + "\n" );     
-            Echo(Tekst);     
-        }     
-        else     
-        {     
-            if (RepeatEcho)
-            {
-                Echo(Tekst);  // Control
-            }
+    if ((MyLCDs == null) || (MyLCDs.Count == 0)) {     
+        Echo( "|-0 No LCD-panel found with " + LCDName + "\n" );     
+        Echo(Tekst);     
+    } else {     
+        if (RepeatEcho) { Echo(Tekst); }  // Control
 
-            for (int i = 0; i < MyLCDs.Count; i++)     
-            {     
-                IMyTextPanel ThisLCD = GridTerminalSystem.GetBlockWithName(MyLCDs[i].CustomName) as IMyTextPanel;     
-                if (ThisLCD == null)     
-                {     
-                    Echo("°-X LCD not found? \n");     
-                }     
-                else     
-                {     
-                    // test -> Echo("Using " + MyLCDs.Count + " LCDs\n" );
+        for (int i = 0; i < MyLCDs.Count; i++) {     
+            IMyTextPanel ThisLCD = GridTerminalSystem.GetBlockWithName(MyLCDs[i].CustomName) as IMyTextPanel;     
+            if (ThisLCD == null) {     
+                Echo("°-X LCD not found? \n");     
+            } else {     
+                // test -> Echo("Using " + MyLCDs.Count + " LCDs\n" );
     
-                    ThisLCD.WritePublicText(Tekst, false);     
-                    ThisLCD.ShowPublicTextOnScreen();    
-                }    
-            }     
+                ThisLCD.WritePublicText(Tekst, false);     
+                ThisLCD.ShowPublicTextOnScreen();    
+            }    
         }     
-    }
+    }     
+}
 
-    /***************
+/*********************
     antenna system
-    ***************/
+***********************/
 List<IMyTerminalBlock> Antennas = new List<IMyTerminalBlock>();
 public bool SendMessage(string SendMessage="AntennaTest", string Header = SendMessageHeader )
 {
@@ -1239,12 +1211,19 @@ string GetTimeString(double timeToEvaluate, bool returnHour = false)
 	}
 }
 
+/***********************
+    Classes
+************************/
+public class Station {
+    string NATOCode;
+    string Status;
+}
+
 public class Ores{
 
     static float refineryBaseEfficency = 0.8f;
 
     string Ore = "Unknown";
-    string Abbreviation = "None";
     float OreIngotRatio = 0.7f;
     float AmountOre = 0f;
     float AmountIngot = 0f;
@@ -1258,9 +1237,8 @@ public class Ores{
         get { return refineryBaseEfficency; }
     }
  
-    public void OreDefinition(string _Name, string _Abbreviation, float _Ratio, string _Ingot){
+    public void OreDefinition(string _Name, float _Ratio, string _Ingot){
         Ore = _name;
-        Abbreviation = _Abbreviation;
         OreIngotRatio = _Ratio;
         Ingot = _Ingot;
     }
