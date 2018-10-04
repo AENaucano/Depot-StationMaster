@@ -66,11 +66,11 @@ public Program() {
     //                                               0.07f, 0.1f, 0.01f, 0.005f, 0.8f, 0.9f };
 
 
-    var Orelisting = new List<Ores>();
+    var OreListing = new List<Ores>();
 
     for(int i=0; i<SubOreTypeList.Count; i++){
         var OreCls = new Ores();
-        Orelisting.Add(OreCls);
+        OreListing.Add(OreCls);
     }
 
     // definitions
@@ -291,13 +291,13 @@ public void Main(string argument, UpdateType updateSource) {
         }
         
         // TODO if the program restarts all DefStations are gone !
-        //      we have to figure out how to captate the Codes from existing Stations !
+        //      we have to figure out how to get the Codes from existing stations !
+        // except Zulu
         foreach(string code in NATO_CODES) {
-            if(parts[0].Contains(code)) {
-                if(!DefStations.Contains(code) DefStations.Add(Code);
+            if(parts[0].Contains(code) && !parts[0].Contains("Zulu")) {
+                if(!DefStations.Contains(code)) { DefStations.Add(code); }
             }
         }
-
 
         // Stations=Mines will send their NatoCode -> Check in DefStations
         if(DefStations.Count > 0){
@@ -316,6 +316,7 @@ public void Main(string argument, UpdateType updateSource) {
                     // OreAmount = float.Parse(parts[2]); //Checkout what is been send is without chars !
                     if(StatusStations.Count > 0) {
                         int StationIdx = DefStations.IndexOf(From);
+                        // Status !
                         StatusStations[StationIdx]=parts[3].Trim();
                     }else{
                         Echo("StatusStations is wrong\n" );
@@ -526,7 +527,7 @@ public void Main(string argument, UpdateType updateSource) {
         
     }
 
-    // TODO rework -> Stations are in the FindPlaces of the OresClass
+    // TODO rework -> Stations are in the Stations of the OresClass
     if(ShowStations){
         if(DefStations.Count > 0){
             Message += "\n List of " + DefStations.Count + " defined Station(s): \n";
@@ -921,121 +922,25 @@ void Calculate_IE() {
 }
 */
 
-
 public void AddOreStations(string FromCode, string OreCode) {
-    switch (OreCode) {
-        case "Iron":
-            FeStations.load(FromCode);
-            break;
-        case "Nickel":
-            NiStations.load(FromCode);               
-            break;
-        case "Silicon":
-            SiStations.load(FromCode);     
-            break;
-        case "Cobalt":
-            CoStations.load(FromCode);                   
-            break;
-        case "Magnesium":
-            MgStations.load(FromCode);                     
-            break;
-        case "Uranium":
-            UStations.load(FromCode);                     
-            break;
-        case "Silver":
-            AgStations.load(FromCode);                     
-            break;
-        case "Gold":
-            AuStations.load(FromCode);                    
-            break;
-        case "Platinum":
-            PtStations.load(FromCode);                    
-            break;
-        case "Stone":
-            GrStations.load(FromCode);                    
-            break;
-        default:
-            break;  
+    for(int i=0; i<Orelisting.Count; i++){
+        if(OreListing[i].GetOreName == OreCode) { OreListing.load(FromCode); }
     }
-
     return;
 }
 
 public int CountStations(string OreCode) {
     int NumberOfStations=0;
-    switch (OreCode) {
-        case "Iron":
-            NumberOfStations = FeStations.Count();
-            break;
-        case "Nickel":
-            NumberOfStations = NiStations.Count();               
-            break;
-        case "Silicon":
-            NumberOfStations = SiStations.Count();    
-            break;
-        case "Cobalt":
-            NumberOfStations = CoStations.Count();                   
-            break;
-        case "Magnesium":
-            NumberOfStations = MgStations.Count();                     
-            break;
-        case "Uranium":
-            NumberOfStations = UStations.Count();                     
-            break;
-        case "Silver":
-            NumberOfStations = AgStations.Count();                    
-            break;
-        case "Gold":
-            NumberOfStations = AuStations.Count();                    
-            break;
-        case "Platinum":
-            NumberOfStations = PtStations.Count();                   
-            break;
-        case "Stone":
-            NumberOfStations = GrStations.Count();                   
-            break;
-        default:
-            break;  
+    for(int i=0; i<Orelisting.Count; i++){
+        if(OreListing[i].GetOreName == OreCode) { NumberOfStations=OreListing.Count(); }
     }
-
     return NumberOfStations;
 }
 
 public string FindStation(string OreCode) {
     string FoundStation="Zulu";
-    switch (OreCode) {
-        case "Iron":
-            FoundStation = FeStations.FindFirstStation();
-            break;
-        case "Nickel":
-            FoundStation = NiStations.FindFirstStation();              
-            break;
-        case "Silicon":
-            FoundStation = SiStations.FindFirstStation();   
-            break;
-        case "Cobalt":
-            FoundStation = CoStations.FindFirstStation();                  
-            break;
-        case "Magnesium":
-            FoundStation = MgStations.FindFirstStation();                  
-            break;
-        case "Uranium":
-            FoundStation = UStations.FindFirstStation();                   
-            break;
-        case "Silver":
-            FoundStation = AgStations.FindFirstStation();              
-            break;
-        case "Gold":
-            FoundStation = AuStations.FindFirstStation();               
-            break;
-        case "Platinum":
-            FoundStation = PtStations.FindFirstStation();                 
-            break;
-        case "Stone":
-            FoundStation = GrStations.FindFirstStation();               
-            break;
-        default:
-            break;  
+    for(int i=0; i<Orelisting.Count; i++){
+        if(OreListing[i].GetOreName == OreCode) { FindFirstStation(); }
     }
 
     return FoundStation;
@@ -1229,7 +1134,7 @@ public class Ores{
     float AmountIngot = 0f;
     float TotalIngot = 0f;
     string Ingot = "Unknown";
-    List<string> FindPlaces = new List<string>(); 
+    List<string> Stations = new List<string>(); 
 
     public Ores(){}
 
@@ -1270,22 +1175,22 @@ public class Ores{
     }
 
     public void load(string NCode) {
-        if(FindPlaces.Count < 1) { FindPlaces.Add(NCode); return; }
-        if(!FindPlaces.Contains(NCode)) FindPlaces.Add(NCode);
+        if(Stations.Count < 1) { Stations.Add(NCode); return; }
+        if(!Stations.Contains(NCode)) Stations.Add(NCode);
     }
 
     public void Unload(string NCode) {
-        if(FindPlaces.Count < 1) { return; }   
-        if(FindPlaces.Contains(NCode)) FindPlaces.Remove(NCode);        
+        if(Stations.Count < 1) { return; }   
+        if(Stations.Contains(NCode)) Stations.Remove(NCode);        
     }
 
     public int Count() {
-        return FindPlaces.Count;
+        return Stations.Count;
     }
 
     public string FindFirstStation(){
         string FoundStation = "Zulu"; // zulu can not be = error
-        if(FindPlaces.Count > 0) { FoundStation = FindPlaces[0]; }
+        if(Stations.Count > 0) { FoundStation = Stations[0]; }
         return FoundStation;
     }
 }
