@@ -32,7 +32,9 @@
 */
 
 
-string version = "2.02";
+string version = "2.03";
+
+var OreListing = new List<Ores>();
 
 // this only runs @the start ie. compile
 public Program() {
@@ -65,9 +67,7 @@ public Program() {
     // List<float> OreIngotRatio = new List<float> { 0.7f, 0.4f, 0.7f, 0.3f, 0.07f,
     //                                               0.07f, 0.1f, 0.01f, 0.005f, 0.8f, 0.9f };
 
-
-    var OreListing = new List<Ores>();
-
+    // Constructors
     for(int i=0; i<SubOreTypeList.Count; i++){
         var OreCls = new Ores();
         OreListing.Add(OreCls);
@@ -137,9 +137,9 @@ static List<String> SubOreTypeList = new List<string> {  "Iron", "Nickel","Silic
 // NATO codes from SAM -  Alfa = Base ?
 static List<string> NATO_CODES = new List<string>(new string[] { "Alfa", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliett", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", "Zulu" }); 
     
-    List<string> NeededOres = new List<string>(); // this is what we really need
-    List<string> OreFetchings = new List<string>(); // this is what we ( forced ) fetch
-    List<string> DefStations = new List<string>(); // these are the defined SAMCodes, the mines which exists -> No ore
+List<string> NeededOres = new List<string>(); // this is what we really need
+List<string> OreFetchings = new List<string>(); // this is what we ( forced ) fetch
+List<string> DefStations = new List<string>(); // these are the defined SAMCodes, the mines which exists -> No ore
     List<string> StatusStations = new List<string>(); // status of the mines or stations
 
     List<string> Cariers = new List<string>(); // Or drone or anything that can get ore ;)
@@ -824,103 +824,30 @@ public void FindOreOnGrid() {
     return;
 }
 
-public void FindIngotOnGrid()
-    {
-        float AmountItems=0;
-        GridTerminalSystem.SearchBlocksOfName("", AllBlocks, i => i.HasInventory);
+public void FindIngotOnGrid() {
+    float AmountItems=0;
+    GridTerminalSystem.SearchBlocksOfName("", AllBlocks, i => i.HasInventory);
 
-        if(AllBlocks.Count == 0) return; // as unlikely as it is ...
+    if(AllBlocks.Count == 0) return; // as unlikely as it is ...
 
-        NewIngotStock.Clear();
-        // iterate through all Subtypes of Ore -> SubIngotTypeList
-        for(int j=0; j<SubIngotTypeList.Count; j++)
-        {
-            AmountItems=0;
-            // Search in all Inventories
-            for (int i=0; i<AllBlocks.Count; i++)
-            {
-                var ThisContainer = AllBlocks[i];
-                IMyInventory ThisStock = ThisContainer.GetInventory(0);
+    NewIngotStock.Clear();
+    // iterate through all Subtypes of Ore -> SubIngotTypeList
+        for(int j=0; j<SubIngotTypeList.Count; j++) {
+        AmountItems=0;
+        // Search in all Inventories
+        for (int i=0; i<AllBlocks.Count; i++) {
+            var ThisContainer = AllBlocks[i];
+            IMyInventory ThisStock = ThisContainer.GetInventory(0);
     
-                AmountItems += countItem(ThisStock, IngotType , SubIngotTypeList[j]);
-            } 
+            AmountItems += countItem(ThisStock, IngotType , SubIngotTypeList[j]);
+        } 
 
-            OreListing[j].StockIngot(AmountItems);
-            // NewIngotStock.Add(AmountItems);
-        }
-
-        return;
-    }
-
-    /*
-        Ore has an Ingot Equivalent -> easier to keep track
-    */
-/*
-void Calculate_IE() {
-    IngotEquivalentStock.Clear();
-
-    for( int i=0; i<SubOreTypeList.Count; i++)
-    {
-
-        // volume ore * OreIngotRatio * Refinery base Efficency
-        float IngotEquivalent=0f;
-        float IngotTotal=0f;
-
-        // Scrap gives iron so -> that goes wrong
-        // Read ore the index should be good ?
-        IngotEquivalent = (float)NewOreStock[i] * (float)OreIngotRatio[i] * RefineryBaseEfficency;
-        // Add the Stock of real Ingot
-        IngotTotal = IngotEquivalent + (float)NewIngotStock[i];
-
-        IngotEquivalentStock.Add(IngotTotal);
-
-        // we have a problem with scrap again 
-        // Both lists should be synchronised   
-        string StockName=SubIngotTypeList[i];
-
-        switch (StockName) {
-            case "Iron":
-                NumberOfIngots.Insert(0, IngotTotal);
-                break;
-            case "Nickel":
-                NumberOfIngots.Insert(1, IngotTotal);                
-                break;
-            case "Silicon":
-                NumberOfIngots.Insert(2, IngotTotal);                
-                break;
-            case "Cobalt":
-                NumberOfIngots.Insert(3, IngotTotal);                
-                break;
-            case "Magnesium":
-                NumberOfIngots.Insert(4, IngotTotal);                
-                break;
-            case "Uranium":
-                // right, now U-ingots are put IN the reactors.
-                // So what about them ?
-                NumberOfIngots.Insert(5, IngotTotal);                
-                break;
-            case "Silver":
-                NumberOfIngots.Insert(6, IngotTotal);                
-                break;
-            case "Gold":
-                NumberOfIngots.Insert(7, IngotTotal);                
-                break;
-            case "Platinum":
-                NumberOfIngots.Insert(8, IngotTotal);                
-                break;
-            case "Scrap":
-                break;
-            case "Stone":
-                NumberOfIngots.Insert(9, IngotTotal);                
-                break;
-            default:
-                break;  
-        }
+        OreListing[j].StockIngot(AmountItems);
+        // NewIngotStock.Add(AmountItems);
     }
 
     return;
 }
-*/
 
 public void AddOreStations(string FromCode, string OreCode) {
     for(int i=0; i<Orelisting.Count; i++){
@@ -1120,8 +1047,8 @@ string GetTimeString(double timeToEvaluate, bool returnHour = false)
     Classes
 ************************/
 public class Station {
-    string NATOCode;
-    string Status;
+    string NATOCode { get; set;}
+    string Status { get; set; }
 }
 
 public class Ores{
