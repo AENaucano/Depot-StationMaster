@@ -1049,6 +1049,7 @@ string GetTimeString(double timeToEvaluate, bool returnHour = false)
 public class Station {
     string NATOCode { get; set;}
     string Status { get; set; }
+    bool AutoMatic = true; // manual drilling ships do not need commands
 }
 
 public class Ores{
