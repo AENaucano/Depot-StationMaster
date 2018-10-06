@@ -32,7 +32,7 @@
 */
 
 
-string version = "2.03";
+string version = "2.04";
 
 var OreListing = new List<Ores>();
 
@@ -56,9 +56,6 @@ public Program() {
     CheckCustomData();
 
     // I leave this here for the moment
-
-
-
     // static List<String> SubOreTypeList = new List<string> {  "Iron", "Nickel","Silicon", "Cobalt", "Magnesium", 
     //                                                          "Uranium", "Silver", "Gold", "Platinum", "Scrap", "Stone" };
     // static List<String> SubIngotTypeList = new List<string> {  "Iron", "Nickel","Silicon", "Cobalt", "Magnesium", 
@@ -138,7 +135,9 @@ static List<String> SubOreTypeList = new List<string> {  "Iron", "Nickel","Silic
 static List<string> NATO_CODES = new List<string>(new string[] { "Alfa", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliett", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "Xray", "Yankee", "Zulu" }); 
     
 List<string> NeededOres = new List<string>(); // this is what we really need
-List<string> OreFetchings = new List<string>(); // this is what we ( forced ) fetch
+List<string> ForcedOres = new List<string>(); // this is what we want 
+List<string> OreFetchings = new List<string>(); // And this is what we current are fetching
+
 List<string> DefStations = new List<string>(); // these are the defined SAMCodes, the mines which exists -> No ore
     List<string> StatusStations = new List<string>(); // status of the mines or stations
 
@@ -261,7 +260,12 @@ public void Main(string argument, UpdateType updateSource) {
         LastReceived = argument;
 
         var parts= argument.Split(':','>','/','=');
-            
+
+        // checking Cariers
+        if(parts[0].Contains("Carier")){
+
+        }
+
         // "Zulu=Test" means a new station is asking for a code
         if(parts[0].Contains("Zulu")) {
             AddReport(20);
@@ -327,11 +331,13 @@ public void Main(string argument, UpdateType updateSource) {
             // if mine=finished and Carier=Waiting -> reset Carier
         }
 
+        /*
         if (argument.Contains("Carier")) {
             Message += " Intercepted Carier message: \n " + argument + "\n";
             var Carierparts = argument.Split(':','=');
             CarierStatus = Carierparts[1];
         }
+        */
 
         // Real commands
         switch (argument.ToLower()) {
@@ -540,14 +546,15 @@ public void Main(string argument, UpdateType updateSource) {
         }
     }   
 
+    // ===============Lights out, spots on, action ==========================================================================================
     // we could force an Uranium fetching ... ?
     // TODO to whom are we sending this ?
     if(!hasSend) { SendMessage("Idle"); }
         
     // we need something(s) to fetch the bl**dy things
     // NeededOres: what DM thinks we need
-    // OreFetchings: forced ore gathering
-    if (NeededOres.Count > 0 || OreFetchings.Count > 0) {
+    // ForcedOres: forced ore gathering
+    if (NeededOres.Count > 0 || ForcedOres.Count > 0) {
         OreFetching();
     }
 
@@ -583,10 +590,10 @@ public void toggleForced(string OreName) {
     }
     
     RemoveReport(18);
-    if (OreFetchings.Contains(OreName)) {
-        OreFetchings.Remove(OreName);
+    if (ForcedOres.Contains(OreName)) {
+        ForcedOres.Remove(OreName);
     }else{
-        OreFetchings.Add(OreName);
+        ForcedOres.Add(OreName);
     }
     return;
 }
@@ -640,17 +647,17 @@ public void GetStations() {
         }
     }
 
-   for(int i=0; i<OreFetchings.Count; i++) {
+   for(int i=0; i<ForcedOres.Count; i++) {
         // find index by subOretype index
-        int lindex = SubOreTypeList.IndexOf(OreFetchings[i]) + 7;
+        int lindex = SubOreTypeList.IndexOf(ForcedOres[i]) + 7;
         // that mine is not yet made !
-        if (CountStations(OreFetchings[i]) < 1) {
+        if (CountStations(ForcedOres[i]) < 1) {
             AddReport(lindex); 
             continue; 
         }else {
             RemoveReport(lindex);
             // make a new waypoint
-            string LString = FindStation(OreFetchings[i]);
+            string LString = FindStation(ForcedOres[i]);
             if (LString != "Zulu") {
                 if(!Waypoints.Contains(LString))Waypoints.Add(LString);
             }
@@ -888,10 +895,18 @@ float countItem(IMyInventory inv, string Type,string itemSubType) {
 /********************
     Ore fetching
 *********************/
+// O great, when we restart this will be completely be redone
+// so what were we doing before the end of last session ?
 public void OreFetching() {
+    
     // So I need ore ?
+    if (NeededOres.Count > 0 || ForcedOres.Count > 0) {
+
+
     // Do we have a Mine of the particular ores ?  -> Waypoints                  
     GetStations();
+
+    // what Ore ?
 
     // -> a mine is a container with an antenna a a drillscript (maybe not configured but with ore ?)
     // what is the Mine doing ? -> MineCar -> MineShip ?
