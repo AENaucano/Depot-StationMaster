@@ -141,7 +141,8 @@ List<string> OreFetchings = new List<string>(); // And this is what we current a
 List<string> DefStations = new List<string>(); // these are the defined SAMCodes, the mines which exists -> No ore
     List<string> StatusStations = new List<string>(); // status of the mines or stations
 
-    List<string> Cariers = new List<string>(); // Or drone or anything that can get ore ;)
+List<string> Cariers = new List<string>(); // Or drone or anything that can get ore ;)
+List<string> CarierStatus = new LIST<string>(); // && what they are doing
     List<string> Waypoints = new List<string>(); // this were those Cariers should go.
 
     // report system
@@ -152,7 +153,7 @@ List<String> ReportTexts = new List<string> {
     " :-] message send\n", 
     " :-> No Antenna PB\n", // obsolete
     " |-[ I have no mines\n", //5
-    " |-[ I need cariers\n",
+    " |-[ I have no cariers\n",
     " |-0 I need a Fe mine\n", //7
     " |-0 I need a Ni mine\n",
     " |-0 I need a Si mine\n",
@@ -167,7 +168,8 @@ List<String> ReportTexts = new List<string> {
     " °-0 Orename does not exist\n",
     " |-[ failed station registration\n",
     " :-] registering new station\n", // 20
-    " --> Testing\n"
+    " --> Testing\n",
+    " :-> No ore to fetch\n"
 };
 
 int ReportCounter = 0;
@@ -198,7 +200,8 @@ List<String> WhatsWrongs = new List<string> {
     " > Iron, Nickle, ... \n",
     " > Check contact w station\n",
     " > should give a NATO code\n",
-    " > DEBUG\n"    
+    " > DEBUG\n",
+    " > lazy sloth\n"
 };
 
     string WhatsWrong = " °-| I dunno ...\n";
@@ -261,9 +264,12 @@ public void Main(string argument, UpdateType updateSource) {
 
         var parts= argument.Split(':','>','/','=');
 
-        // checking Cariers
+        // checking Cariers -> OreTransport sends "Carier:"
         if(parts[0].Contains("Carier")){
-
+            if(!Cariers.Contains(parts[1])) { 
+                Cariers.Add(Parts[1]);
+                CarierStatus.Add(Parts[2]);
+            }
         }
 
         // "Zulu=Test" means a new station is asking for a code
@@ -898,15 +904,31 @@ float countItem(IMyInventory inv, string Type,string itemSubType) {
 // O great, when we restart this will be completely be redone
 // so what were we doing before the end of last session ?
 public void OreFetching() {
-    
+    // if there is nothing to get the ore what are we going to do ?
+    if(Cariers.Count<1) { AddReport(6); return; }
+    RemoveReport(6);
+
+    // with every restart of SE program it forgets what cariers are
+    // already doing, so we should check their status.
+    // -> TODO
+
+    // We have cariers at least - now what do we want them to do ?
+    OreFetchings.Clear();
     // So I need ore ?
     if (NeededOres.Count > 0 || ForcedOres.Count > 0) {
+        foreach(string ore in ForcedOres ) { if(!OreFetchings.Contains(ore)) { OreFetchings.Add(ore); }}
+        foreach(string ore in NeededOres ) { if(!OreFetchings.Contains(ore)) { OreFetchings.Add(ore); }}
+    } 
+    
+    // no ore no game
+    if(OreFetchings.Count < 1) { AddReport(22); return; }
+    RemoveReport(22);
 
-
-    // Do we have a Mine of the particular ores ?  -> Waypoints                  
-    GetStations();
-
-    // what Ore ?
+    // Do we have a Mine of the particular ores ?  -> Waypoints
+    // That should be in ore.Stations 
+    foreach(string ore in OreFetchings){                
+        GetStations(ore);
+    }
 
     // -> a mine is a container with an antenna a a drillscript (maybe not configured but with ore ?)
     // what is the Mine doing ? -> MineCar -> MineShip ?

@@ -51,7 +51,7 @@ public static List<char> SLIDER_ROTATOR = new List<char>(new char[] { '-', '\\',
 public DisplaySlider rotator = new DisplaySlider(Program.SLIDER_ROTATOR); 
 
 // Naming blocks
-const string DRONENAME = "Drone";
+const string DRONENAME = "Drone"; // should be unique
 const string LCDNAME = DRONENAME + "LCD";
 
 const string FREIGHTCONTAINER = DRONENAME + "Container";
@@ -88,7 +88,7 @@ bool TimerTriggered = false;
 // Antenna System
 const string AntennaName = "Antenna Drone";
 // Carier is what the DM need
-const string SENDMESSAGEHEADER = "Carier " + DRONENAME; // should be unique name
+const string SENDMESSAGEHEADER = "Carier:" + DRONENAME; // should be unique name
 int SendTimer=0;
 
 string ProgramStatus = "Euh";
