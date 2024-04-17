@@ -3,7 +3,7 @@
 *********************************************/
 /*
     Remastered the whole f******* thing !
-    * changed the Freightconatiner with ISI's percent
+    * changed the Freightcontainer with ISI's percent
     * Started to use CustomData of PB
     * Changed Battery status
     * Changed CustomData references
