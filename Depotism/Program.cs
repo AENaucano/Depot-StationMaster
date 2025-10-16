@@ -69,7 +69,8 @@ namespace IngameScript
         // public static Items ShipItems = new Items();
         public static Cargo ShipCargo = new Cargo();
         public static Logging ScriptLog = new Logging();
-
+        public static Communications Comms = new Communications();
+        
         // stuff for debugging
         public static bool Debug = true;
         public static string DebugText = "";
@@ -512,51 +513,57 @@ namespace IngameScript
 
         }
     }
-    public class communications
+    public class Communications
     {
         string Header;
         string Message;
+        string Source;
 
         List<IMyBroadcastListener> listeners = new List<IMyBroadcastListener>();
-        List<communications> broadcasts = new List<communications>();
+        List<Communications> broadcasts = new List<Communications>();
 
-        public communications(string _Header, string _Message, string _Source)
+        public Communications(string _Header, string _Message, string _Source)
         {
             Header = _Header;
             Message = _Message;
             Source = _Source;
         }
 
-        public SetupCom()
+        public bool SetupCom()
         {
-    	    // Create a list for broadcast listeners.
+    	    if _prog.Antennas.Count() == 0) return false;
+            // Create a list for broadcast listeners.
     	    IGC.GetBroadcastListeners(listeners);
+            if (listeners.Count == 0) { ScripLog.addLog("SetupCom01: No listeners found", "Error"); return false;}
+            return true;
         }    
 
-        public void ReceiveMessage()
+        public bool ReceiveMessage()
         {    
-    	    if(listeners[0].HasPendingMessage)
+    	    bool Received = false;
+            if(listeners.Count == 0) return Received;
+            if(listeners[0].HasPendingMessage)
 	        {
     		    MyIGCMessage message = new MyIGCMessage;
         		message = listeners[0].AcceptMessage();
-            	// A message is a struct of 3 variables. To read the actual data,
-		        // we access the Data field, convert it to type string (unboxing),
-		        // and store it in the variable messagetext.
 		        string messagetext = message.Data.ToString();
-
-		        // We can also access the tag that the message was sent with.
 		        string messagetag = message.Tag;
-
-		        //Here we store the "address" to the Programmable Block (our friend's) that sent the message.
 		        long sender = message.Source;
 
-		        //Do something with the information!
-		        Echo("Message received with tag" + messagetag + "\n\r");
-		        Echo("from address " + sender.ToString() + ": \n\r");
-		        Echo(messagetext);
+		        // Do something with the information!
+		        // Echo("Message received with tag" + messagetag + "\n");
+		        // Echo("from address " + sender.ToString() + ": \n");
+		        // Echo(messagetext);
                 communications newMessage = new communications(messagetag, messagetext, sender.ToString());
                 broadcasts.Add(newMessage);
+                Received = true;
             }
+            return Received
 		}
+
+        public void SendMessage(string SendMessage="AntennaTest", string Header = "AntennaTest" )
+        {
+            IGC.SendBroadcastMessage(Header, SendMessage, TransmissionDistance.TransmissionDistanceMax);
+        }
 	}
 }
