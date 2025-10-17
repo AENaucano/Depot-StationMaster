@@ -31,10 +31,13 @@ namespace IngameScript
 
         // Tags
         public string ScriptTag = "DepotMaster"; // name of this script
-        public string SpecialTag = "!Special"; // in accordance with Isy's inventory manager
+        public string SpecialTag = "Carrier !Special"; // in accordance with Isy's inventory manager
         // Vars
         public string ProgramStatus = "Setup"; // Setup, running, Stopped, Reset
-                // Booleans
+        public IMyCargoContainer DeliverBox = null; // Have to be established
+        public IMyCargoContainer CarierBox = null; // Have to be filled with the correct Container
+
+        // Booleans
         // public static bool EmptyCargo = false;
         public static bool Running = false;
         public static bool ResetNeeded = false; // false = normal running true = reset running
@@ -42,6 +45,11 @@ namespace IngameScript
         public static bool Connected = false; // WARING This regulates if we recharge everything
         public static bool CargoFull = false; // true if cargo is full
         public static bool BatteriesRecharge = false; // true if PAM has set the batteries to recharge
+
+        // Special LCDs
+        public IMyTextPanel LCD_Request;
+        public string Special_txt = ""; // Isy's form
+        public string Special_tmp = ""; // Template
 
         // Lists
         List<IMyBatteryBlock> Batteries = new List<IMyBatteryBlock>();
@@ -103,6 +111,7 @@ namespace IngameScript
             Echo(" ... Running " + VERSION + "\n");
             if ((updateSource & UpdateType.Update100) != 0) DoChecking();
             if ((updateSource & (UpdateType.Terminal | UpdateType.Script | UpdateType.Trigger)) != 0) GetInput(argument);
+            if ((updateSource & UpdateType.IGC) != 0) GetIGC();
             if ((updateSource & UpdateType.Update10) != 0) DoLoop();
         }
         /*************
@@ -158,6 +167,17 @@ namespace IngameScript
         }
         public void DoChecking()
         {
+            // check for ships docked
+            for (int cidx = 0; cidx < ConBlocks.Count(); cidx++)
+            {
+                cntor = ConBlocks[cidx]
+                MyShipConnectorStatus thisConnectorStatus = cntor.Status;
+                // if docked search for container with "Carrier !Special" in name
+                if(thisConnectorStatus == 2)
+                {
+                    SearchContainers();
+                }
+            }
         }
         public void DoLoop()
         {
@@ -434,12 +454,13 @@ namespace IngameScript
                 MedrawingSurface.WriteText(ScreenText, false);
             }
         }
+        // TODO this is not from the Depot or Station this is a Ship ! REDO ! -> Carriers class ?
         public class Cargo
         {
             public static List<IMyCargoContainer> AllContainers = new List<IMyCargoContainer>();
 
             /// <summary>
-            /// checks the Shps' cargo and returns a percentage of its' load in percentage.
+            /// checks the Ships' cargo and returns a percentage of its' load in percentage.
             /// </summary>
             /// <returns>float(percent)</returns>
             public float CheckShipCargo()
@@ -512,58 +533,84 @@ namespace IngameScript
             }
 
         }
-    }
-    public class Communications
-    {
-        string Header;
-        string Message;
-        string Source;
+        public class Communications
+        {   
+            string Header;
+            string Message;
+            string Source;
 
-        List<IMyBroadcastListener> listeners = new List<IMyBroadcastListener>();
-        List<Communications> broadcasts = new List<Communications>();
+            List<IMyBroadcastListener> listeners = new List<IMyBroadcastListener>();
+            List<Communications> broadcasts = new List<Communications>();
 
-        public Communications(string _Header, string _Message, string _Source)
-        {
-            Header = _Header;
-            Message = _Message;
-            Source = _Source;
-        }
-
-        public bool SetupCom()
-        {
-    	    if _prog.Antennas.Count() == 0) return false;
-            // Create a list for broadcast listeners.
-    	    IGC.GetBroadcastListeners(listeners);
-            if (listeners.Count == 0) { ScripLog.addLog("SetupCom01: No listeners found", "Error"); return false;}
-            return true;
-        }    
-
-        public bool ReceiveMessage()
-        {    
-    	    bool Received = false;
-            if(listeners.Count == 0) return Received;
-            if(listeners[0].HasPendingMessage)
-	        {
-    		    MyIGCMessage message = new MyIGCMessage;
-        		message = listeners[0].AcceptMessage();
-		        string messagetext = message.Data.ToString();
-		        string messagetag = message.Tag;
-		        long sender = message.Source;
-
-		        // Do something with the information!
-		        // Echo("Message received with tag" + messagetag + "\n");
-		        // Echo("from address " + sender.ToString() + ": \n");
-		        // Echo(messagetext);
-                communications newMessage = new communications(messagetag, messagetext, sender.ToString());
-                broadcasts.Add(newMessage);
-                Received = true;
+            public Communications(string _Header, string _Message, string _Source)
+            {
+                Header = _Header;
+                Message = _Message;
+                Source = _Source;
             }
-            return Received
-		}
 
-        public void SendMessage(string SendMessage="AntennaTest", string Header = "AntennaTest" )
+            public bool SetupCom()
+            {
+    	        if _prog.Antennas.Count() == 0) return false;
+                // Create a list for broadcast listeners.
+    	        IGC.GetBroadcastListeners(listeners);
+                if (listeners.Count == 0) { ScripLog.addLog("SetupCom01: No listeners found", "Error"); return false;}
+                return true;
+            }    
+
+            public bool ReceiveMessage()
+            {    
+    	        bool Received = false;
+                if(listeners.Count == 0) return Received;
+                if(listeners[0].HasPendingMessage)
+	            {
+    		        MyIGCMessage message = new MyIGCMessage;
+        		    message = listeners[0].AcceptMessage();
+		            string messagetext = message.Data.ToString();
+		            string messagetag = message.Tag;
+		            long sender = message.Source;
+
+		            // Do something with the information!
+		            // Echo("Message received with tag" + messagetag + "\n");
+		            // Echo("from address " + sender.ToString() + ": \n");
+		            // Echo(messagetext);
+                    communications newMessage = new communications(messagetag, messagetext, sender.ToString());
+                    broadcasts.Add(newMessage);
+                    Received = true;
+                }
+                return Received
+		    }
+
+            public void SendMessage(string SendMessage="AntennaTest", string Header = "AntennaTest" )
+            {
+                IGC.SendBroadcastMessage(Header, SendMessage, TransmissionDistance.TransmissionDistanceMax);
+            }
+        }
+        public class Carriers
         {
-            IGC.SendBroadcastMessage(Header, SendMessage, TransmissionDistance.TransmissionDistanceMax);
+            private string Name = "Undef";
+            private int Containers = 0;
+            private float MaxLoad = 0;
+            private float CurrentLoad = 0;
+            private string Where = "Nowhere"; // deliverypoint
+
+            public Carriers(string _name, int _containers, float _maxload, float _currentload, string _where)
+            {
+                Name = _name;
+                Containers = _containers;
+                MaxLoad = _maxload;
+                CurrentLoad = _currentload;
+                Where = _where; // NoWhere, Docked, AtDepot
+            }
+
+            list<Carriers> AllCarriers = new list<Carriers>();
+
+            public void AddCarier(string _name, int _containers, float _maxload, float _currentload, string _where)
+            {
+                if (_containers == 0) return;
+                Carriers newCarrier = new Cariers(_name, _containers, _maxload, _currentload, _where);
+                AllCarriers.Add(newCarier);
+            }
         }
 	}
 }
